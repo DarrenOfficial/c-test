@@ -1,0 +1,48 @@
+{
+  "name": "spotify-ad-blocker",
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "bin": "./src/main.js",
+  "main": "./src/main.js",
+  "license": "MIT",
+  "scripts": {
+    "beforebuild": "node-gyp rebuild && renamer -f .node -r .foolpkg **/*.node",
+    "build": "yarn beforebuild && yarn build:detection && yarn build:pkg && yarn build:silentexe && yarn afterbuild",
+    "build:dev": "node-gyp rebuild && yarn build:detection",
+    "build:detection": "g++ native\\win\\spotify\\spotify.cc -o build\\Release\\spotify-ad-blocker_detection.exe",
+    "build:nonsilent": "yarn beforebuild && yarn build:detection && yarn build:pkg && yarn afterbuild",
+    "build:log": "yarn beforebuild && yarn build:pkg:log && yarn afterbuild",
+    "build:pkg": "pkg . --options expose-gc --target win --output spotify-ad-blocker.exe",
+    "build:pkg:log": "pkg . --debug --target win --output spotify-ad-blocker.exe > pkg.log",
+    "build:silentexe": "create-nodew-exe spotify-ad-blocker.exe spotify-ad-blocker.exe",
+    "afterbuild": "renamer -f .foolpkg -r .node **/*.foolpkg",
+    "start": "cross-env DEBUG=swh node --expose-gc .",
+    "start:webstorm": "yarn build:mute && cross-env DEBUG=* node %NODE_DEBUG_OPTION% .",
+    "postinstall": "patch-package"
+  },
+  "dependencies": {
+    "auto-launch": "5.0.5",
+    "bindings": "1.5.0",
+    "fecha": "2.3.3",
+    "fs-extra": "6.0.1",
+    "process-list": "1.2.3"
+  },
+  "devDependencies": {
+    "create-nodew-exe": "1.0.5",
+    "cross-env": "5.2.0",
+    "patch-package": "6.1.2",
+    "pkg": "4.4.0",
+    "postinstall-postinstall": "2.0.0",
+    "renamer": "1.1.2"
+  },
+  "pkg": {
+    "assets": [
+      "./assets/spotify-ad-blocker.ico",
+      "./build/Release/spotify-ad-blocker_detection.exe",
+      "./build/Release/tray.foolpkg",
+      "./build/Release/volumectrl.foolpkg",
+      "./node_modules/process-list/build/Release/processlist.foolpkg"
+    ]
+  }
+}
